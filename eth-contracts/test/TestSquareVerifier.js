@@ -2,6 +2,28 @@
 
 // Test verification with correct proof
 // - use the contents from proof.json generated from zokrates steps
-
-    
 // Test verification with incorrect proof
+let SquareVerifier = artifacts.require('SquareVerifier');
+const { proof, inputs } = require('../../zokrates/code/square/proof.json');
+
+contract('TestSquareVerifier', accounts => {
+
+    const owner = accounts[0];
+
+    describe('SquareVerifier tests', () => {
+
+        before(async () => {
+            contract = await SquareVerifier.new({from: owner});
+        });
+
+        it('Test with correct proof passes', async () => {
+            let result = await contract.verifyTx(proof.a, proof.b, proof.c, inputs, {from: owner});
+            assert.equal(result, true, "Proof should be correct");
+        });
+
+        it('Test with incorrect proof does not pass', async () => {
+            let result = await contract.verifyTx(proof.a, proof.b, proof.c, ['0','1'], {from: owner});
+            assert.equal(result, false, "Proof should be correct");
+        })
+    })
+});
